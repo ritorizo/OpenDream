@@ -1070,16 +1070,22 @@ namespace OpenDreamRuntime.Procs {
         }
 
         public static ProcStatus Divide(DMProcState state) {
+
             DreamValue second = state.Pop();
             DreamValue first = state.Pop();
             if (first.IsNull) {
                 state.Push(new(0));
-            } else if (first.TryGetValueAsFloat(out var firstFloat) && second.TryGetValueAsFloat(out var secondFloat)) {
-                if (secondFloat == 0) {
-                    throw new Exception("Division by zero");
+            } else if (first.TryGetValueAsFloat(out var firstFloat)) {
+                if (second.TryGetValueAsFloat(out var secondFloat)) {
+                    if (secondFloat == 0) {
+                        throw new Exception("Division by zero");
+                    }
+                    state.Push(new(firstFloat / secondFloat));
+                } else if (second.IsNull) {
+                    state.Push(new(firstFloat));
+                } else {
+                    throw new Exception($"Invalid divide operation, can't divide {first} by {second}");
                 }
-
-                state.Push(new(firstFloat / secondFloat));
             } else if (first.TryGetValueAsDreamObject<DreamObject>(out var firstDreamObject)) {
                 var result = firstDreamObject.OperatorDivide(second, state);
                 state.Push(result);

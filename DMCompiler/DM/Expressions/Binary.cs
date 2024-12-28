@@ -99,14 +99,18 @@ internal sealed class Divide(Location location, DMExpression lhs, DMExpression r
             return false;
         }
 
-        if (lhs is Number lhsNum && rhs is Number rhsNum) {
-            constant = new Number(Location, lhsNum.Value / rhsNum.Value);
-        } else {
-            constant = null;
-            return false;
+        if (lhs is Number lhsNum) {
+            if (rhs is Number rhsNum) {
+                constant = new Number(Location, lhsNum.Value / rhsNum.Value);
+                return true;
+            } else if (rhs is Null) {
+                constant = new Number(Location, lhsNum.Value);
+                return true;
+            }
         }
 
-        return true;
+        constant = null;
+        return false;
     }
 
     public override void EmitPushValue(ExpressionContext ctx) {
